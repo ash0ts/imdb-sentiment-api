@@ -1,46 +1,32 @@
 from typing import Any
 
-import joblib
-from core.config import MODEL_LOADER
 from core.errors import PredictException
-from core.model_loaders import load_model_loaders
 from fastapi import APIRouter, HTTPException
 from loguru import logger
-from models.prediction import (BERTSentimentRequest, BERTSentimentResponse,
-                               HealthResponse)
-from services.predict import BERTModelHandler as model
-
-# from models.prediction import MachineLearningResponse
-# from services.predict import MachineLearningModelHandlerScore as model
+from models.prediction import HealthResponse
+from services.wandb import WANDB_MODEL as model
 
 router = APIRouter()
 
-# TODO: Build a better way to choose and switch between prediction functions
-# def get_prediction(data_input): return MachineLearningResponse(
-#     model.predict(
-#         data_input, load_wrapper=load_model_loaders()[MODEL_LOADER], method="predict")
-# )
+# TODO: Let the passed logged model script define the model response? Or expect generic response and let model process output
 
 
-@router.get("/predict", response_model=BERTSentimentResponse, name="predict:get-data")
+@router.get("/predict", name="predict:get-data")
 # async def predict(request: BERTSentimentRequest):
 async def predict(text: str):
     # text = request.text
     # if not request:
     if not text:
         raise HTTPException(
-            status_code=404, detail=f"'data_input' argument invalid!")
+            status_code=404, detail="'data_input' argument invalid!")
     try:
-        predictions = model.predict([text])
-        sentiment_response = BERTSentimentResponse(
-            text=text,
-            sentiment=predictions["sentiment"],
-            confidences=predictions["confidences"],
-        )
+        # TODO: Fix this mess of a prediction flow. Make it so I don't need to pass the model? Or overwrite the class somehow as we expect a logged
+        # predict code to always pass a model first and then inputs after?
+        prediction = model.predict(model.model, text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Exception: {e}")
 
-    return sentiment_response
+    return prediction
 
 
 @router.get(

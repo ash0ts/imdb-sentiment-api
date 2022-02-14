@@ -17,9 +17,11 @@ MAX_CONNECTIONS_COUNT: int = config(
     "MAX_CONNECTIONS_COUNT", cast=int, default=10)
 MIN_CONNECTIONS_COUNT: int = config(
     "MIN_CONNECTIONS_COUNT", cast=int, default=10)
-SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret, default="")
 
-PROJECT_NAME: str = config("PROJECT_NAME", default="imdb-sentiment-api")
+WANDB_ENTITY = config("WANDB_ENTITY")
+WANDB_PROJECT_NAME = config("WANDB_PROJECT_NAME")
+MODEL_ARTIFACT_NAME = config("MODEL_ARTIFACT_NAME")
+MODEL_ARTIFACT_VERSION = config("MODEL_ARTIFACT_VERSION")
 
 # logging configuration
 LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO
@@ -27,10 +29,3 @@ logging.basicConfig(
     handlers=[InterceptHandler(level=LOGGING_LEVEL)], level=LOGGING_LEVEL
 )
 logger.configure(handlers=[{"sink": sys.stderr, "level": LOGGING_LEVEL}])
-
-LOCAL_MODEL_DIR = config("LOCAL_MODEL_DIR", default="./ml/model/")
-LOCAL_MODEL_NAME = config("LOCAL_MODEL_NAME", default="model.pkl")
-
-MODEL_VERSION = config("MODEL_VERSION", default="latest")
-
-MODEL_LOADER = config("MODEL_LOADER", default="joblib")

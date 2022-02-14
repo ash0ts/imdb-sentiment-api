@@ -1,35 +1,14 @@
 from typing import Callable
 
-import joblib
 from fastapi import FastAPI
-
-from core.config import MODEL_LOADER
-from core.model_loaders import load_model_loaders
+from services.wandb import WANDB_MODEL
 
 
-def preload_model():
-    """
-    In order to load model on memory to each worker
-    """
-    # from services.predict import MachineLearningModelHandlerScore as model
-    from services.predict import BERTModelHandler as model
-
-    # TODO: Fix this so we can more easily use env variables to pass in the load mechanism
-    model.get_model(load_model_loaders()["transformers"])
-
-
-def download_latest_wandb_model():
-    """
-    In order to download model to load on memory for each worker
-    """
-    from services.predict import WANDBHandler
-
-    WANDBHandler.download_latest_model()
-
-
-def create_wandb_download_and_preload_handler(app: FastAPI) -> Callable:
+def preload_model_from_wandb(app: FastAPI) -> Callable:
     def model_app() -> None:
-        download_latest_wandb_model()
-        preload_model()
+        WANDB_MODEL.download_latest_model()
+        WANDB_MODEL.install()
+        WANDB_MODEL.set_deployment_code()
+        WANDB_MODEL.set_model()
 
     return model_app

@@ -8,16 +8,16 @@ from loguru import logger
 from starlette.exceptions import HTTPException
 
 from api.routes.api import router as api_router
-from core.config import API_PREFIX, DEBUG, PROJECT_NAME, VERSION
-from core.events import create_wandb_download_and_preload_handler
+from core.config import API_PREFIX, DEBUG, VERSION, WANDB_PROJECT_NAME
+from core.events import preload_model_from_wandb
 
 
 def get_application() -> FastAPI:
-    logger.error(os.environ)
-    application = FastAPI(title=PROJECT_NAME, debug=DEBUG, version=VERSION)
+    application = FastAPI(title=WANDB_PROJECT_NAME,
+                          debug=DEBUG, version=VERSION)
     application.include_router(api_router, prefix=API_PREFIX)
     application.add_event_handler(
-        "startup", create_wandb_download_and_preload_handler(application))
+        "startup", preload_model_from_wandb(application))
     return application
 
 
