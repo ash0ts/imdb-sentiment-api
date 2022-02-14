@@ -3,13 +3,14 @@ steps:
   # - name: 'gcr.io/cloud-builders/gsutil'
   #   args: ['cp','-r', 'gs://machine-learning-samples/models/sentiment/model', '.']
   #   id: 'download-model'
+  # TODO: Fix the fact that this gc project name is hardcoded right now
   # Build the container image
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/banishimdbsenmodel/sentiment", "."]
+    args: ["build", "-t", "gcr.io/spacydrugner/model_api", "."]
     # waitFor: ['download-model']
   # Push the container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/banishimdbsenmodel/sentiment"]
+    args: ["push", "gcr.io/spacydrugner/model_api"]
   # Deploy container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
     args:
@@ -17,9 +18,9 @@ steps:
         "beta",
         "run",
         "deploy",
-        "sentiment",
+        "model_api",
         "--image",
-        "gcr.io/banishimdbsenmodel/sentiment",
+        "gcr.io/spacydrugner/model_api",
         "--region",
         "us-east1",
         "--platform",
@@ -41,7 +42,7 @@ steps:
     #   - MODEL_VERSION='latest'
     #   - MODEL_LOADER='transformers'
 images:
-  - gcr.io/banishimdbsenmodel/sentiment
+  - gcr.io/spacydrugner/model_api
 # availableSecrets:
 #   secretManager:
 #     - env: "WANDB_API_KEY"
